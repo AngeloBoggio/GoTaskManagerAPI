@@ -44,3 +44,11 @@ func UpdateTask(c *gin.Context){
 	}
 	c.JSON(http.StatusOK, task)
 }
+
+func DeleteTask(c *gin.Context){
+    var task models.Task
+    if err := config.DB.Where("id = ?", c.Params.ByName("id")).Delete(&task).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+}

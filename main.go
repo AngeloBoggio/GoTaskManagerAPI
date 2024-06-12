@@ -32,6 +32,9 @@ func main() {
 
     router.GET("/tasks", handlers.GetTasks)
     router.POST("/tasks", handlers.CreateTask)
+    router.PUT(("/tasks/:id"), handlers.UpdateTask)
+
+
 
     // Run the Gin server
     router.Run(":8080")
