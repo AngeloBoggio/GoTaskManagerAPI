@@ -2,7 +2,7 @@ package models // This package is called models and it is used to store the data
 
 type Task struct {
 	ID 		uint   `json:"id" gorm:"primary_key"`  // This is an unsigned integer that represents the ID of the task but whats this syntax?
-	Title 	string `json:"title"`
-	Description string `json:"description"`
+	Title 	string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
 	Completed bool `json:"completed"`
 }
