@@ -3,9 +3,15 @@ package main
 import (
 	"github.com/AngeloBoggio/GoTaskManagerAPI/config"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/handlers"
+	"github.com/AngeloBoggio/GoTaskManagerAPI/middleware"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/models"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
+
+func init() {
+    godotenv.Load()
+}
 
 func main() {
     // Set Gin to release mode
@@ -30,11 +36,18 @@ func main() {
         })
     })
 
-    router.GET("/tasks", handlers.GetTasks)
-    router.POST("/tasks", handlers.CreateTask)
-    router.PUT(("/tasks/:id"), handlers.UpdateTask)
+     // Public routes
+     router.POST("/login", handlers.Login)
 
-
+     // Protected routes
+     authorized := router.Group("/")
+     authorized.Use(middleware.AuthMiddleware())
+     {
+         authorized.GET("/tasks", handlers.GetTasks)
+         authorized.POST("/tasks", handlers.CreateTask)
+         authorized.PUT("/tasks/:id", handlers.UpdateTask)
+         authorized.DELETE("/tasks/:id", handlers.DeleteTask)
+     }
 
     // Run the Gin server
     router.Run(":8080")

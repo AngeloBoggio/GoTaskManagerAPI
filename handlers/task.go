@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/AngeloBoggio/GoTaskManagerAPI/config"
+	"github.com/AngeloBoggio/GoTaskManagerAPI/middleware"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/models"
 	"github.com/gin-gonic/gin"
 )
@@ -51,4 +52,22 @@ func DeleteTask(c *gin.Context){
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
+    c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
+}
+
+func Login(c *gin.Context){
+    
+    var user models.User
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    token, err := middleware.GenerateToken(user.Username)
+    if err != nil{
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+        return 
+    }
+
+    c.JSON(http.StatusOK, gin.H{"token": token})
 }

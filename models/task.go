@@ -6,3 +6,4 @@ type Task struct {
 	Description string `json:"description" binding:"required"`
 	Completed bool `json:"completed"`
 }
+
