@@ -25,9 +25,9 @@ func init() {
     }
 }
 
-func GenerateToken(username string) (string, error) {
+func GenerateToken(userID uint) (string, error) {
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-        "username": username,
+        "userID": userID,
         "exp":      time.Now().Add(time.Hour * 72).Unix(),
     })
 
@@ -52,7 +52,17 @@ func AuthMiddleware() gin.HandlerFunc {
             c.Abort()
             return
         }
+        
+        claims, ok := token.Claims.(jwt.MapClaims)
+        if !ok || !token.Valid {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+            c.Abort()
+            return
+        }
 
+        userID := uint(claims["userID"].(float64))
+        c.Set("userID", userID)
+        
         c.Next()
     }
 }
