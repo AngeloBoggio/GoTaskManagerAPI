@@ -38,6 +38,7 @@ func main() {
 
      // Public routes
      router.POST("/login", handlers.Login)
+     router.POST("/signup", handlers.SignUp)
 
      // Protected routes
      authorized := router.Group("/")

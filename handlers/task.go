@@ -1,12 +1,14 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/AngeloBoggio/GoTaskManagerAPI/config"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/middleware"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/models"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // GetTasks handles GET requests to retrieve all tasks
@@ -53,6 +55,38 @@ func DeleteTask(c *gin.Context){
         return
     }
     c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
+}
+
+
+func SignUp(c *gin.Context) {
+    var user models.User
+    // Bind JSON to user model first
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user data"})
+        return
+    }
+
+    // Check if the user already exists
+    var existingUser models.User
+    // Find the first user with name of user
+    if err := config.DB.Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
+        // If no error, user exists
+        c.JSON(http.StatusConflict, gin.H{"error": "Username already taken"})
+        return
+    } else if !errors.Is(err, gorm.ErrRecordNotFound) {
+        // If the error is not ErrRecordNotFound, then it's an unexpected error
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+        return
+    }
+
+    // Create new user
+    if err := config.DB.Create(&user).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+        return
+    }
+
+    // Successfully created user
+    c.JSON(http.StatusCreated, user)
 }
 
 func Login(c *gin.Context){
