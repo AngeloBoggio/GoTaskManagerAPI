@@ -26,16 +26,10 @@ func main() {
     // Connect to the database
     config.ConnectDatabase()
     
-    // Auto-migrate the Task model
+    // Auto-migrate models
     config.DB.AutoMigrate(&models.Task{})
-
-    // Define routes
-    router.GET("/ping", func(c *gin.Context) {
-        c.JSON(200, gin.H{
-            "message": "pong",
-        })
-    })
-
+    config.DB.AutoMigrate(&models.User{})
+    
      // Public routes
      router.POST("/login", handlers.Login)
      router.POST("/signup", handlers.SignUp)

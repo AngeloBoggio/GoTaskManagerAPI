@@ -8,6 +8,7 @@ import (
 	"github.com/AngeloBoggio/GoTaskManagerAPI/middleware"
 	"github.com/AngeloBoggio/GoTaskManagerAPI/models"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -97,11 +98,26 @@ func Login(c *gin.Context){
         return
     }
 
-    token, err := middleware.GenerateToken(user.UserID)
-    if err != nil{
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
-        return 
+    var existingUser models.User
+    if err := config.DB.Where("username = ?", user.Username).First(&existingUser).Error; err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+        return
     }
 
-    c.JSON(http.StatusOK, gin.H{"token": token})
+
+    // Compare the hashed password
+    if err := bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(user.Password)); err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
+        return
+    }
+
+
+     // Generate token if login is successful
+     token, err := middleware.GenerateToken(existingUser.UserID)
+     if err != nil {
+         c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+         return 
+     }
+ 
+     c.JSON(http.StatusOK, gin.H{"token": token})
 }
