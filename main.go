@@ -30,19 +30,19 @@ func main() {
     config.DB.AutoMigrate(&models.Task{})
     config.DB.AutoMigrate(&models.User{})
     
-     // Public routes
-     router.POST("/login", handlers.Login)
-     router.POST("/signup", handlers.SignUp)
+    // Public routes
+    router.POST("/login", handlers.Login)
+    router.POST("/signup", handlers.SignUp)
 
-     // Protected routes
-     authorized := router.Group("/")
-     authorized.Use(middleware.AuthMiddleware())
-     {
-         authorized.GET("/tasks", handlers.GetTasks)
-         authorized.POST("/tasks", handlers.CreateTask)
-         authorized.PUT("/tasks/:id", handlers.UpdateTask)
-         authorized.DELETE("/tasks/:id", handlers.DeleteTask)
-     }
+    // Protected routes
+    authorized := router.Group("/")
+    authorized.Use(middleware.AuthMiddleware())
+    {
+        authorized.GET("/tasks", handlers.GetTasks)
+        authorized.POST("/tasks", handlers.CreateTask)
+        authorized.PUT("/tasks/:id", handlers.UpdateTask)
+        authorized.DELETE("/tasks/:id", handlers.DeleteTask)
+    }
 
     // Run the Gin server
     router.Run(":8080")
