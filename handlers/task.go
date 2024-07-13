@@ -109,11 +109,8 @@ func SignUp(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
         return
     }
+
     user.Password = string(hashedPassword)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
-        return
-    }
     
     // Create new user
     if err := config.DB.Create(&user).Error; err != nil {
